@@ -1,56 +1,47 @@
 package org.example;
 
-import java.io.*;
+import org.example.entities.UnionFind;
+import org.example.util.FileWorker;
+
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
 
+    private static final Logger log = Logger.getLogger(Main.class.getName());
+
     public static void main(String[] args) {
 
         try {
-            /*if (args.length < 1) {
-                System.out.println("Пожалуйста, укажите имя файла.");
+            if (args.length < 1) {
+                log.info("Пожалуйста, укажите имя файла.");
                 return;
-            }*/
+            }
 
-            //args[0]
-            String fileName = "/Users/vladsemenenok/Desktop/lng.txt";
+            String fileName = args[0];
 
-            List<String> lines = readFile(fileName);
+            List<String> lines = FileWorker.readFile(fileName);
 
             List<Set<String>> groups = groupLines(lines);
 
             String outputFilePath = "output.txt";
-            writeInFile(outputFilePath, groups);
+            FileWorker.writeInFile(outputFilePath, groups);
         }
         catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
+            log.log(Level.SEVERE, e.getMessage());
         }
     }
 
     /**
-     * Метод для чтения файла
+     * Проверка некорректности строки
      *
-     * @param pathFile Путь файла
-     * @return прочитанные строки файла
+     * @param line Строка
+     * @return Флаг соответствия паттерну
      */
-    public static List<String> readFile(String pathFile) {
-        List<String> lines = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(pathFile))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                lines.add(line.trim());
-            }
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Ошибка  чтения файла");
-        }
-        return lines;
-    }
-
-    // Проверка корректности строки: каждый элемент в кавычках и разделен ;
     public static boolean isValidLine(String line) {
         // Регулярное выражение для проверки, что каждый элемент обёрнут в кавычки и разделён точкой с запятой
         String regex = "^\"([^\"]*)\"(;\")([^\"]*\")*$";
@@ -58,7 +49,12 @@ public class Main {
         return pattern.matcher(line).matches();
     }
 
-    // Метод для группировки строк
+    /**
+     * Метод для группировки строк
+     *
+     * @param lines - все строки, прочитанные из файла
+     * @return структура сгруппированных строк
+     */
     public static List<Set<String>> groupLines(List<String> lines) {
         int n = lines.size();
         UnionFind uf = new UnionFind(n);
@@ -101,21 +97,6 @@ public class Main {
         resultGroups.sort((a, b) -> Integer.compare(b.size(), a.size())); // Сортировка по размеру группы
 
         return resultGroups;
-    }
-
-    private static void writeInFile(String outputFilePath,List<Set<String>> resultGroups){
-        // Записываем в файл
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFilePath))) {
-            writer.write(resultGroups.size() + "\n"); // Число групп с более чем 1 элементом
-            for (int i = 0; i < resultGroups.size(); i++) {
-                writer.write("Группа " + (i + 1) + "\n");
-                for (String groupLine : resultGroups.get(i)) {
-                    writer.write(groupLine + "\n");
-                }
-            }
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Ошибка записи в файл");
-        }
     }
 
 }

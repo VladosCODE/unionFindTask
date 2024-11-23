@@ -1,4 +1,4 @@
-package org.example;
+package org.example.entities;
 
 /**
  * Класс для реализации структуры Union-Find (Disjoint Set Union)
@@ -7,7 +7,7 @@ public class UnionFind {
     private final int[] parent;
     private final int[] size;
 
-    UnionFind(int n) {
+    public UnionFind(int n) {
         parent = new int[n];
         size = new int[n];
         for (int i = 0; i < n; i++) {
